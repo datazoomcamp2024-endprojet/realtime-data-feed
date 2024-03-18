@@ -1,0 +1,7 @@
+.gradle
+bin
+!src/main/resources/rides.csv
+
+build/
+
+.env

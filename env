@@ -1,0 +1,2 @@
+#kafka cluster key for sasl auth
+CLUSTER_KEY=<<your cluster key>>
