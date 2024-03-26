@@ -1,0 +1,19 @@
+version: '3'
+services:
+  consumer:
+    # depends_on:
+    #   - producer
+    build:
+      context: .
+      args:
+        - service=consumer
+    environment:
+      - CLUSTER_KEY=${CLUSTER_KEY}
+      - SERVER_URL=${SERVER_URL}
+      - KAFKA_CLUSTER_SECRET=${KAFKA_CLUSTER_SECRET}
+  producer:
+    build:
+      context: ./websocket/
+      args:
+        - service=produce
+    command: --bootstrap_servers ${SERVER_URL} --cluster_key ${CLUSTER_KEY} --cluster_secret ${KAFKA_CLUSTER_SECRET}

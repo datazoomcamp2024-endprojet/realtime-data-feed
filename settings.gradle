@@ -4,4 +4,4 @@ pluginManagement {
         mavenCentral()
     }
 }
-rootProject.name = 'kafka_examples'
+rootProject.name = 'realtime-order-feed'

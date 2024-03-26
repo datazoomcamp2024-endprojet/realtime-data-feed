@@ -26,6 +26,7 @@ class JsonKStreamJoinsTest {
     private TestOutputTopic<String, VendorInfo> outputTopic;
 
     private Topology topology = new JsonKStreamJoins().createTopology();
+
     @BeforeEach
     public void setup() {
         props = new Properties();
@@ -35,9 +36,12 @@ class JsonKStreamJoinsTest {
             testDriver.close();
         }
         testDriver = new TopologyTestDriver(topology, props);
-        ridesTopic = testDriver.createInputTopic(Topics.INPUT_RIDE_TOPIC, Serdes.String().serializer(), CustomSerdes.getSerde(Ride.class).serializer());
-        pickLocationTopic = testDriver.createInputTopic(Topics.INPUT_RIDE_LOCATION_TOPIC, Serdes.String().serializer(), CustomSerdes.getSerde(PickupLocation.class).serializer());
-        outputTopic = testDriver.createOutputTopic(Topics.OUTPUT_TOPIC, Serdes.String().deserializer(), CustomSerdes.getSerde(VendorInfo.class).deserializer());
+        ridesTopic = testDriver.createInputTopic(Topics.INPUT_RIDE_TOPIC, Serdes.String().serializer(),
+                CustomSerdes.getSerde(Ride.class).serializer());
+        pickLocationTopic = testDriver.createInputTopic(Topics.INPUT_RIDE_LOCATION_TOPIC, Serdes.String().serializer(),
+                CustomSerdes.getSerde(PickupLocation.class).serializer());
+        outputTopic = testDriver.createOutputTopic(Topics.OUTPUT_TOPIC, Serdes.String().deserializer(),
+                CustomSerdes.getSerde(VendorInfo.class).deserializer());
     }
 
     @Test
@@ -48,13 +52,13 @@ class JsonKStreamJoinsTest {
         pickLocationTopic.pipeInput(String.valueOf(pickupLocation.PULocationID), pickupLocation);
 
         assertEquals(outputTopic.getQueueSize(), 1);
-        var expected = new VendorInfo(ride.VendorID, pickupLocation.PULocationID, pickupLocation.tpep_pickup_datetime, ride.tpep_dropoff_datetime);
+        var expected = new VendorInfo(ride.VendorID, pickupLocation.PULocationID, pickupLocation.tpep_pickup_datetime,
+                ride.tpep_dropoff_datetime);
         var result = outputTopic.readKeyValue();
         assertEquals(result.key, String.valueOf(ride.DOLocationID));
         assertEquals(result.value.VendorID, expected.VendorID);
         assertEquals(result.value.pickupTime, expected.pickupTime);
     }
-
 
     @AfterAll
     public static void shutdown() {

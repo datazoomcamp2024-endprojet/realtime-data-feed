@@ -27,8 +27,10 @@ class JsonKStreamTest {
             testDriver.close();
         }
         testDriver = new TopologyTestDriver(topology, props);
-        inputTopic = testDriver.createInputTopic("rides", Serdes.String().serializer(), CustomSerdes.getSerde(Ride.class).serializer());
-        outputTopic = testDriver.createOutputTopic("rides-pulocation-count", Serdes.String().deserializer(), Serdes.Long().deserializer());
+        inputTopic = testDriver.createInputTopic("rides", Serdes.String().serializer(),
+                CustomSerdes.getSerde(Ride.class).serializer());
+        outputTopic = testDriver.createOutputTopic("rides-pulocation-count", Serdes.String().deserializer(),
+                Serdes.Long().deserializer());
     }
 
     @Test
@@ -70,11 +72,9 @@ class JsonKStreamTest {
         assertTrue(outputTopic.isEmpty());
     }
 
-
     @AfterAll
     public static void tearDown() {
         testDriver.close();
     }
-
 
 }

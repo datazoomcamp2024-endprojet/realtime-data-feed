@@ -1,7 +1,14 @@
 .gradle
+.vscode
 bin
 !src/main/resources/rides.csv
 
 build/
 
 .env
+websocket/start-service-docker-NOT_COMMIT.sh
+
+*tfstate*
+*ipynb*
+*lock.hcl*
+*.terraform/

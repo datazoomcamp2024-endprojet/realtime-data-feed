@@ -19,7 +19,8 @@ public class JsonKStream {
     public JsonKStream() {
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "pkc-75m1o.europe-west3.gcp.confluent.cloud:9092");
         props.put("security.protocol", "SASL_SSL");
-        props.put("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username='"+Secrets.KAFKA_CLUSTER_KEY+"' password='"+Secrets.KAFKA_CLUSTER_SECRET+"';");
+        props.put("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required username='"
+                + Secrets.KAFKA_CLUSTER_KEY + "' password='" + Secrets.KAFKA_CLUSTER_SECRET + "';");
         props.put("sasl.mechanism", "PLAIN");
         props.put("client.dns.lookup", "use_all_dns_ips");
         props.put("session.timeout.ms", "45000");
@@ -31,7 +32,8 @@ public class JsonKStream {
 
     public Topology createTopology() {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
-        var ridesStream = streamsBuilder.stream("rides", Consumed.with(Serdes.String(), CustomSerdes.getSerde(Ride.class)));
+        var ridesStream = streamsBuilder.stream("rides",
+                Consumed.with(Serdes.String(), CustomSerdes.getSerde(Ride.class)));
         var puLocationCount = ridesStream.groupByKey().count().toStream();
         puLocationCount.to("rides-pulocation-count", Produced.with(Serdes.String(), Serdes.Long()));
         return streamsBuilder.build();
