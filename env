@@ -1,2 +1,6 @@
 #kafka cluster key for sasl auth
 CLUSTER_KEY=<<your cluster key>>
+CLUSTER_KEY=<<your cluster key>>
+SERVER_URL=<<kafka bootstrap url>>
+KAFKA_CLUSTER_SECRET=<<kafka cluster secret>>
+GCP_PROJECT_ID=<<gcp project id>>

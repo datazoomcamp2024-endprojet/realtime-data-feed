@@ -6,4 +6,5 @@ public class Topics {
     public static final String OUTPUT_TOPIC = "vendor_info";
     public static final String TUTORIAL_TOPIC = "tutorial_topic";
     public static final String ORDERS_BTC = "orders_btc";
+    public static final String ONE_MIN_WINDOW = "one-minute-windowed-volume";
 }

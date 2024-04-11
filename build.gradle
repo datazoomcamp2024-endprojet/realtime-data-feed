@@ -35,6 +35,7 @@ dependencies {
     testImplementation 'org.apache.kafka:kafka-streams-test-utils:3.3.1'
     implementation 'org.slf4j:slf4j-api:2.0.12'
     implementation 'org.slf4j:slf4j-simple:2.0.12'
+    implementation 'com.google.cloud:google-cloud-bigquery:2.38.2'
 }
 
 sourceSets.main.java.srcDirs = ['build/generated-main-avro-java','src/main/java']
@@ -44,9 +45,15 @@ test {
 }
 
 jar {
-    baseName project.getProperty("customName")
+    var jarName = ""
+    var mainClassName = ""
+    if(project.hasProperty("customName") && project.hasProperty("mainClass")) {
+        jarName = project.getProperty("customName")
+        mainClassName = project.getProperty("mainClass")
+    }
+    baseName jarName
     manifest {
-        attributes "Main-Class": project.getProperty("mainClass")
+        attributes "Main-Class": mainClassName
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {

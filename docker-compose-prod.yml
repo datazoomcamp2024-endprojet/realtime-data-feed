@@ -11,6 +11,8 @@ services:
       - CLUSTER_KEY=${CLUSTER_KEY}
       - SERVER_URL=${SERVER_URL}
       - KAFKA_CLUSTER_SECRET=${KAFKA_CLUSTER_SECRET}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - CONSUMER_GROUP_ID=windowed.one.minute.v3
   producer:
     build:
       context: ./websocket/

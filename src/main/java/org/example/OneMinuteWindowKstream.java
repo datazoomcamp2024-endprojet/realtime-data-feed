@@ -10,7 +10,6 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.state.WindowStore;
@@ -23,8 +22,10 @@ import java.util.Properties;
 
 public class OneMinuteWindowKstream {
         private Properties props = new Properties();
+        private BigQueryWriter bigQueryWriter;
 
-        public OneMinuteWindowKstream() {
+        public OneMinuteWindowKstream(BigQueryWriter bigQueryWriter) {
+                this.bigQueryWriter = bigQueryWriter;
                 props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, Secrets.SERVER_URL);
                 props.put("security.protocol", "SASL_SSL");
                 props.put("sasl.jaas.config",
@@ -34,7 +35,7 @@ public class OneMinuteWindowKstream {
                 props.put("sasl.mechanism", "PLAIN");
                 props.put("client.dns.lookup", "use_all_dns_ips");
                 props.put("session.timeout.ms", "45000");
-                props.put(StreamsConfig.APPLICATION_ID_CONFIG, "time.window.1minute.v1");
+                props.put(StreamsConfig.APPLICATION_ID_CONFIG, Secrets.GROUP_ID);
                 props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
                 props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
 
@@ -70,12 +71,18 @@ public class OneMinuteWindowKstream {
                                                                                 value.side,
                                                                                 value.volume)));
 
-                ridesStream.to("one-minute-windowed-volume",
+                ridesStream.to(Topics.ONE_MIN_WINDOW,
                                 Produced.with(
                                                 Serdes.String(),
                                                 CustomSerdes.getSerde(VolumeHourly.class)));
-                ridesStream.print(Printed.toSysOut());
 
+                streamsBuilder.stream(Topics.ONE_MIN_WINDOW,
+                                Consumed.with(Serdes.String(),
+                                                CustomSerdes.getSerde(VolumeHourly.class)))
+                                .foreach((key, volumeHourly) -> {
+                                        System.out.println(volumeHourly);
+                                        bigQueryWriter.write(volumeHourly);
+                                });
                 return streamsBuilder.build();
         }
 
@@ -88,7 +95,7 @@ public class OneMinuteWindowKstream {
 
         public static void main(String[] args) {
                 System.out.println("starting stream");
-                var object = new OneMinuteWindowKstream();
+                var object = new OneMinuteWindowKstream(new BigQueryWriter(Secrets.GCP_PROJECT_ID));
                 object.calculateVolumeWindowed();
         }
 }
