@@ -14,9 +14,9 @@ provider "google" {
 }
 
 resource "google_bigquery_dataset" "default" {
-  dataset_id                  = "prod"
-  friendly_name               = "prod"
-  description                 = "dataset contains tables for this project"
+  dataset_id                  = var.bigquery_dataset_name
+  friendly_name               = var.bigquery_dataset_name
+  description                 = "dataset contains tables for aggregated btc volume"
   location                    = "EU"
   default_table_expiration_ms = 3600000
 

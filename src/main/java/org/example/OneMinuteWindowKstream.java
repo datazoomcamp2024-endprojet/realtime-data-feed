@@ -1,6 +1,7 @@
 package org.example;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -16,8 +17,10 @@ import org.apache.kafka.streams.state.WindowStore;
 import org.example.customserdes.CustomSerdes;
 import org.example.data.OrderBtcEvent;
 import org.example.data.VolumeBtcTimeWindow;
+import org.example.data.VolumeHourly;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Properties;
 
 public class OneMinuteWindowKstream {
@@ -26,6 +29,7 @@ public class OneMinuteWindowKstream {
 
         public OneMinuteWindowKstream(BigQueryWriter bigQueryWriter) {
                 this.bigQueryWriter = bigQueryWriter;
+                System.out.println("url " + Secrets.SERVER_URL);
                 props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, Secrets.SERVER_URL);
                 props.put("security.protocol", "SASL_SSL");
                 props.put("sasl.jaas.config",
@@ -36,9 +40,14 @@ public class OneMinuteWindowKstream {
                 props.put("client.dns.lookup", "use_all_dns_ips");
                 props.put("session.timeout.ms", "45000");
                 props.put(StreamsConfig.APPLICATION_ID_CONFIG, Secrets.GROUP_ID);
+                props.put(ConsumerConfig.GROUP_ID_CONFIG, Secrets.GROUP_ID);
                 props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
                 props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
 
+        }
+
+        public OneMinuteWindowKstream() {
+                // TODO Auto-generated constructor stub
         }
 
         public Topology createTopology() {
@@ -46,9 +55,22 @@ public class OneMinuteWindowKstream {
                 var ridesStream = streamsBuilder
                                 .stream(Topics.ORDERS_BTC,
                                                 Consumed.with(Serdes.String(),
-                                                                CustomSerdes.getSerde(OrderBtcEvent.class)))
+                                                                CustomSerdes.getSerde(OrderBtcEvent.class))
+                                                                .withTimestampExtractor(
+                                                                                (ConsumerRecord<Object, Object> record,
+                                                                                                long partitionTime) -> {
+                                                                                        System.out.println("time "
+                                                                                                        + Instant.parse(
+                                                                                                                        ((OrderBtcEvent) record
+                                                                                                                                        .value()).time)
+                                                                                                                        .toEpochMilli());
+                                                                                        return Instant.parse(
+                                                                                                        ((OrderBtcEvent) record
+                                                                                                                        .value()).time)
+                                                                                                        .toEpochMilli();
+                                                                                }))
                                 .groupByKey()
-                                .windowedBy(TimeWindows.ofSizeAndGrace(Duration.ofMinutes(1), Duration.ofSeconds(10)))
+                                .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))
                                 .aggregate(
                                                 () -> new VolumeBtcTimeWindow(),
                                                 (key, value, aggregate) -> {
@@ -81,7 +103,7 @@ public class OneMinuteWindowKstream {
                                                 CustomSerdes.getSerde(VolumeHourly.class)))
                                 .foreach((key, volumeHourly) -> {
                                         System.out.println(volumeHourly);
-                                        bigQueryWriter.write(volumeHourly);
+                                        bigQueryWriter.writeStream(volumeHourly);
                                 });
                 return streamsBuilder.build();
         }
@@ -94,8 +116,11 @@ public class OneMinuteWindowKstream {
         }
 
         public static void main(String[] args) {
-                System.out.println("starting stream");
-                var object = new OneMinuteWindowKstream(new BigQueryWriter(Secrets.GCP_PROJECT_ID));
+                System.out.println("starting stream with " + Secrets.GCP_PROJECT_ID + Secrets.DATASET
+                                + Secrets.SERVER_URL);
+                new OneMinuteWindowKstream();
+                var object = new OneMinuteWindowKstream(
+                                new BigQueryWriter(Secrets.GCP_PROJECT_ID, Secrets.DATASET, Secrets.TABLE));
                 object.calculateVolumeWindowed();
         }
 }

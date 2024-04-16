@@ -1,3 +1,4 @@
+gcp-key.json
 .gradle
 .vscode
 bin
@@ -6,6 +7,7 @@ bin
 build/
 
 .env
+.env_java
 websocket/start-service-docker-NOT_COMMIT.sh
 
 *tfstate*

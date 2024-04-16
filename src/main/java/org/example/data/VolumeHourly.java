@@ -1,4 +1,4 @@
-package org.example;
+package org.example.data;
 
 public class VolumeHourly {
 
@@ -6,6 +6,10 @@ public class VolumeHourly {
     public long end;
     public String volume;
     public String side;
+
+    public VolumeHourly() {
+
+    }
 
     public VolumeHourly(long start, long end, String side, String volume) {
         this.start = start;
