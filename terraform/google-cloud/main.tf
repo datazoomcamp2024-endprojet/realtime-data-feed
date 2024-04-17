@@ -26,9 +26,9 @@ resource "google_bigquery_dataset" "default" {
 }
 
 resource "google_bigquery_table" "default" {
-  dataset_id = google_bigquery_dataset.default.dataset_id
-  table_id   = var.bigquery_table_name
-
+  dataset_id  = google_bigquery_dataset.default.dataset_id
+  table_id    = var.bigquery_table_name
+  description = "table that contains volume of btc orders per side and per minute"
 
   labels = {
     env = "default"

@@ -1,6 +1,11 @@
+#------kafka config
+SERVER_URL=<<kafka bootstrap url>>
 #kafka cluster key for sasl auth
 CLUSTER_KEY=<<your cluster key>>
-CLUSTER_KEY=<<your cluster key>>
-SERVER_URL=<<kafka bootstrap url>>
 KAFKA_CLUSTER_SECRET=<<kafka cluster secret>>
+
+#------Big query config
 GCP_PROJECT_ID=<<gcp project id>>
+DATASET=prod
+TABLE=one_minute_window_btc_volume
+GOOGLE_APPLICATION_CREDENTIALS=gcp-key.json

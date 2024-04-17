@@ -9,8 +9,10 @@ variable "location" {
 
 variable "bigquery_table_name" {
   description = "my big query table name"
+  default     = "one_minute_window_btc_volume"
 }
 
 variable "bigquery_dataset_name" {
   description = "my big query dataset name"
+  default     = "prod"
 }
