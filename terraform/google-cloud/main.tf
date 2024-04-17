@@ -64,3 +64,27 @@ resource "google_bigquery_table" "default" {
 EOF
 
 }
+
+resource "google_service_account" "bigquery_sa" {
+  account_id   = "my-service-account"
+  display_name = "My Service Account"
+}
+
+resource "google_project_iam_binding" "bigquery_admin_access" {
+  project = "<YOUR_PROJECT_ID>"
+  role    = "roles/bigquery.admin"
+
+  members = [
+    "serviceAccount:${google_service_account.my_service_account.email}"
+  ]
+}
+
+resource "google_service_account_key" "my_service_account_key" {
+  service_account_id = google_service_account.bigquery_sa.name
+  public_key_type    = "JSON"
+  key_algorithm      = "RSA"
+}
+
+output "service_account_key_json" {
+  value = google_service_account_key.my_service_account_key.private_key
+}
