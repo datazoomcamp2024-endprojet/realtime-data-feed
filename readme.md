@@ -50,6 +50,9 @@ for simplicity, there is no cloud infrasctructure definition or deployment to th
 
 ## How to reproduce the solution 
 
+### pre-requisite
+install python3 and java11
+
 ### create cloud infrastructure
 
 ### install terraform
