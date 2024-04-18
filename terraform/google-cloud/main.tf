@@ -66,25 +66,24 @@ EOF
 }
 
 resource "google_service_account" "bigquery_sa" {
-  account_id   = "my-service-account"
-  display_name = "My Service Account"
+  account_id   = "bigquery-service-account"
+  display_name = "My Service Account for BQ"
 }
 
 resource "google_project_iam_binding" "bigquery_admin_access" {
-  project = "<YOUR_PROJECT_ID>"
+  project = var.gcp_project_id
   role    = "roles/bigquery.admin"
 
   members = [
-    "serviceAccount:${google_service_account.my_service_account.email}"
+    "serviceAccount:${google_service_account.bigquery_sa.email}"
   ]
 }
 
 resource "google_service_account_key" "my_service_account_key" {
   service_account_id = google_service_account.bigquery_sa.name
-  public_key_type    = "JSON"
-  key_algorithm      = "RSA"
 }
 
-output "service_account_key_json" {
-  value = google_service_account_key.my_service_account_key.private_key
+resource "local_file" "json_key" {
+  content  = google_service_account_key.my_service_account_key.private_key
+  filename = "${path.root}/../../gcp-key.json"
 }
