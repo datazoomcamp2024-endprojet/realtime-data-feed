@@ -84,6 +84,6 @@ resource "google_service_account_key" "my_service_account_key" {
 }
 
 resource "local_file" "json_key" {
-  content  = google_service_account_key.my_service_account_key.private_key
+  content  = base64decode(google_service_account_key.my_service_account_key.private_key)
   filename = "${path.root}/../../gcp-key.json"
 }
