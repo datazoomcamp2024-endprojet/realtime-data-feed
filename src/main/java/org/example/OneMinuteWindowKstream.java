@@ -93,7 +93,7 @@ public class OneMinuteWindowKstream {
 				Consumed.with(Serdes.String(),
 						CustomSerdes.getSerde(VolumeHourly.class)))
 				.foreach((key, volumeHourly) -> {
-					System.out.println(volumeHourly);
+					System.out.println("transaction processed , side = " + volumeHourly.side);
 					bigQueryWriter.writeStream(volumeHourly);
 				});
 		return streamsBuilder.build();
